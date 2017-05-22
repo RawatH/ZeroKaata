@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import zerokaata.hashcode.com.utils.Util;
 import zerokaata.hashcode.com.utils.ZKConstants;
 
 /**
@@ -56,12 +57,13 @@ public class DataTransferThread extends Thread {
                 // Read from the InputStream.
                 numBytes = inStream.read(buffer);
                 // Send the obtained bytes to the UI activity.
-                Log.e(TAG, "READ Result -- " + (int)buffer[0]);
-                sendMessage(String.valueOf((int)buffer[0]) , ZKConstants.MSG_READ);
+                String jsonData = Util.getJSONString(buffer);
+                Log.e(TAG, "READ Result -- " + jsonData);
+                sendMessage(jsonData , ZKConstants.MSG_READ);
             } catch (IOException e) {
                 e.printStackTrace();
                 Log.e(TAG, "Input stream was disconnected");
-               // break;
+                break;
             }
         }
     }
@@ -72,7 +74,7 @@ public class DataTransferThread extends Thread {
             outStream.write(bytes.getBytes());
 
             Log.e(TAG, "Written Result -- " + bytes.toString());
-            sendMessage(bytes , ZKConstants.MSG_READ);
+            sendMessage(bytes , ZKConstants.MSG_WRITE);
         } catch (IOException e) {
             Log.e(TAG, "Error occurred when sending data", e);
 

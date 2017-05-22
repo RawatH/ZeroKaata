@@ -16,7 +16,6 @@ import android.view.View;
 import zerokaata.hashcode.com.R;
 import zerokaata.hashcode.com.application.ZKApplication;
 import zerokaata.hashcode.com.ui.HomeActivity;
-import zerokaata.hashcode.com.utils.GameManager;
 import zerokaata.hashcode.com.utils.Util;
 import zerokaata.hashcode.com.utils.ZKConstants;
 
@@ -29,13 +28,17 @@ public class CellView extends View {
 
     private Paint paint;
     private Context context;
-    private int cellId;
+    private int rowId;
+    private int colId;
+    private int position;
     private static float radii;
-    private boolean isClicked;
+    private boolean isUserClick;
+    private boolean winFlag;
     private String playerSymbol;
     private GestureDetector mDetector = new GestureDetector(context, new CellView.GestureListener());
 
-    private MoveListener listener;
+    private GameListener gameListener;
+    private int playerType;
 
     public CellView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -47,23 +50,23 @@ public class CellView extends View {
                 0, 0);
 
         try {
-            cellId = typedArray.getInt(R.styleable.CellView_cellId, 0);
+            position = typedArray.getInt(R.styleable.CellView_position, 0);
+            rowId = typedArray.getInt(R.styleable.CellView_rowId, 0);
+            colId = typedArray.getInt(R.styleable.CellView_colId, 0);
         } finally {
             typedArray.recycle();
         }
 
-        listener =((ZKApplication) ((HomeActivity) context).getApplication()).getGameManager().getListener();
+        gameListener = ((ZKApplication) ((HomeActivity) context).getApplication()).getGameManager().getGameListener();
         init();
     }
 
     private void init() {
         paint = new Paint();
         paint.setAntiAlias(true);
-
+        playerType = ((ZKApplication) ((HomeActivity) context).getApplication()).getGameManager().getPlayerType();
         Typeface plain = Typeface.createFromAsset(context.getAssets(), "game_font.ttf");
         paint.setTypeface(plain);
-
-
     }
 
     @Override
@@ -74,54 +77,57 @@ public class CellView extends View {
         float centerX = canvasWidth / 2;
         float centerY = canvasHeight / 2;
 
-        paint.setColor(Color.parseColor("#16A085"));
-        canvas.drawRect(rect, paint);
+        if(winFlag) {
+            paint.setColor(winFlag ? Color.RED : Color.parseColor("#16A085"));
+            canvas.drawRect(rect, paint);
+        }
 
         paint.setColor(Color.BLACK);
         paint.setStrokeWidth(10.0f);
 
-        switch (cellId) {
+        switch (position) {
+            case 0:
+                canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
+                canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
+                break;
             case 1:
                 canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
                 canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
-                break;
-            case 2:
-                canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
-                canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
                 break;
-            case 3:
+            case 2:
+
                 canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
 
-            case 4:
+            case 3:
                 canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
                 canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
                 canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
                 break;
-            case 5:
+            case 4:
                 canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
                 canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
+                canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
+                canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
+
+                break;
+            case 5:
+                canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
                 canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
 
                 break;
             case 6:
-                canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
-                canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
                 canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
-
+                canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
                 break;
             case 7:
                 canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
-                canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
-                break;
-            case 8:
-                canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
                 canvas.drawLine(rect.right, rect.top, rect.right, rect.bottom, paint);
                 break;
-            case 9:
+            case 8:
                 canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
                 break;
@@ -131,7 +137,8 @@ public class CellView extends View {
         radii = centerX > centerY ? centerY : centerX;
         canvas.drawCircle(centerX, centerY, radii - 10, paint);
 
-        if (isClicked) {
+        if (isUserClick) {
+            // o , x color
             paint.setColor(Color.parseColor("#ab3456"));
             paint.setTextSize(120);
             paint.setTextAlign(Paint.Align.CENTER);
@@ -146,14 +153,8 @@ public class CellView extends View {
     }
 
     private void setPlayerSymbol() {
-        int playerType = ((ZKApplication) ((HomeActivity) context).getApplication()).getGameManager().getPlayerType();
 
-        if (playerType == ZKConstants.PLAYER.TYPE_X) {
-            playerSymbol = "X";
-        }
-        if (playerType == ZKConstants.PLAYER.TYPE_O) {
-            playerSymbol = "O";
-        }
+        playerSymbol = ((ZKApplication) ((HomeActivity) context).getApplication()).getGameManager().getPlayerSymbol();
     }
 
     class GestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -168,11 +169,10 @@ public class CellView extends View {
         boolean result = mDetector.onTouchEvent(event);
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (!isClicked) {
-                    //TODO : Move by a player
-                    GameManager.GAME_COUNTER ++;
-                    isClicked = true;
-                    listener.sendMessage(String.valueOf(cellId));
+                if (!isUserClick) {
+                    //TODO : Move by a player . Use GameListener
+                    isUserClick = true;
+                    gameListener.updateMove(position, rowId, colId, false);
                     invalidate();
                 } else {
                     Util.showToast(context, "Already clicked");
@@ -183,26 +183,30 @@ public class CellView extends View {
         return result;
     }
 
-    public void updateMove(){
-        isClicked = true;
+    public void updateMove() {
+        isUserClick = true;
 
-        if(playerSymbol.equalsIgnoreCase("x")){
-            playerSymbol = "O";
-        }else{
-            playerSymbol = "X";
+        if (playerSymbol.equalsIgnoreCase(ZKConstants.MARK_X)) {
+            playerSymbol = ZKConstants.MARK_O;
+        } else {
+            playerSymbol = ZKConstants.MARK_X;
         }
         invalidate();
 
     }
 
-    public void reset(){
-        isClicked = false;
+    public void drawWin() {
+        winFlag = true;
         invalidate();
     }
 
-    public interface MoveListener {
+    public void reset() {
+        isUserClick = false;
+        invalidate();
+    }
 
-        void sendMessage(String msg);
 
+    public interface GameListener {
+        void updateMove(int position, int row, int col, boolean isOpponentsMove);
     }
 }

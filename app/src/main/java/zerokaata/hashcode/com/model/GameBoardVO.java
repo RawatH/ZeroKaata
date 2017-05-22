@@ -1,24 +1,44 @@
 package zerokaata.hashcode.com.model;
 
+import android.util.Log;
 import android.view.View;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.StringTokenizer;
 
 import zerokaata.hashcode.com.R;
 import zerokaata.hashcode.com.customview.CellView;
+import zerokaata.hashcode.com.utils.Util;
 
 /**
  * Created by hrawat on 19-05-2017.
  */
 
-public class GameBoardVO {
+public class GameBoardVO implements CellView.GameListener {
 
     private static GameBoardVO instance;
     private boolean isPlayersConnected;
     private int playerType;
-    private CellView.MoveListener listener;
+
+    private PlayerMoveListener playerMoveListener;
+    private CellView.GameListener gameListener;
+
     private View gameLayout;
+    public static int TOTAL_MOVES = 9;
+    public static int MOVE_COUNTER = 0;
+
+    private int[][] gameGridArr = new int[3][3];
+    private int gameArr[] = new int[9];
+
+    private String[] winMatchList = {"0:1:2", "3:4:5", "6:7:8",
+            "0:3:6", "1:4:7", "2:5:8",
+            "0:4:8", "2:4:6"};
+
+    private static final String TAG = GameBoardVO.class.getSimpleName();
 
     private GameBoardVO() {
-
     }
 
     public static GameBoardVO getInstance() {
@@ -29,21 +49,20 @@ public class GameBoardVO {
 
     }
 
-    public View getGameLayout() {
-        return gameLayout;
-    }
 
     public void setGameLayout(View gameLayout) {
         this.gameLayout = gameLayout;
     }
 
-    public CellView.MoveListener getListener() {
-        return listener;
+
+    public PlayerMoveListener getPlayerMoveListener() {
+        return playerMoveListener;
     }
 
-    public void setListener(CellView.MoveListener listener) {
-        this.listener = listener;
+    public void setPlayerMoveListener(PlayerMoveListener playerMoveListener) {
+        this.playerMoveListener = playerMoveListener;
     }
+
 
     public boolean isPlayersConnected() {
         return isPlayersConnected;
@@ -57,59 +76,136 @@ public class GameBoardVO {
         return playerType;
     }
 
+    public String getPlayerSymbol() {
+        return Util.getPlayerSymbol(playerType);
+    }
+
     public void setPlayerType(int playerType) {
         this.playerType = playerType;
     }
 
-    public void updateMoveOnBoard(String cellId){
+    /**
+     * UPDATE OPPONENT MOVE
+     * @param data
+     */
+    public void updateOpponentMove(String data) {
 
-       if(gameLayout != null){
-           switch (Integer.parseInt(cellId)){
-               case 49:
-                   ((CellView)gameLayout.findViewById(R.id.cell_one)).updateMove();
-                   break;
-               case 50:
-                   ((CellView)gameLayout.findViewById(R.id.cell_two)).updateMove();
-                   break;
-               case 51:
-                   ((CellView)gameLayout.findViewById(R.id.cell_three)).updateMove();
-                   break;
-               case 52:
-                   ((CellView)gameLayout.findViewById(R.id.cell_four)).updateMove();
-                   break;
-               case 53:
-                   ((CellView)gameLayout.findViewById(R.id.cell_five)).updateMove();
-                   break;
-               case 54:
-                   ((CellView)gameLayout.findViewById(R.id.cell_six)).updateMove();
-                   break;
-               case 55:
-                   ((CellView)gameLayout.findViewById(R.id.cell_seven)).updateMove();
-                   break;
-               case 56:
-                   ((CellView)gameLayout.findViewById(R.id.cell_eight)).updateMove();
-                   break;
-               case 57:
-                   ((CellView)gameLayout.findViewById(R.id.cell_nine)).updateMove();
-                   break;
+        try {
+            JSONObject jsonObject = new JSONObject(data);
+            int row = jsonObject.optInt("rowId");
+            int col = jsonObject.optInt("colId");
+            int position = jsonObject.optInt("position");
+            gameGridArr[row][col] = playerType;
+            gameArr[position] = playerType;
 
-           }
+            Log.d(TAG, "Move count : " + MOVE_COUNTER);
+            if (gameLayout != null) {
+                getCellViewFor(position).updateMove();
+            }
 
-       }
+            MOVE_COUNTER++;
+
+            if (MOVE_COUNTER >= 5) {
+                checkForWin();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
-    public void resetBoard(){
-        ((CellView)gameLayout.findViewById(R.id.cell_one)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_two)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_three)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_four)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_five)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_six)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_seven)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_eight)).reset();
-        ((CellView)gameLayout.findViewById(R.id.cell_nine)).reset();
 
+    public void resetBoard() {
+        MOVE_COUNTER = 0;
+        ((CellView) gameLayout.findViewById(R.id.cell_one)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_two)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_three)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_four)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_five)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_six)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_seven)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_eight)).reset();
+        ((CellView) gameLayout.findViewById(R.id.cell_nine)).reset();
+
+    }
+
+
+    private boolean checkForWin() {
+        boolean winFlag = false;
+        Log.d(TAG, "Checking for WIN . ");
+
+        StringTokenizer st;
+        int arr[] = new int[3];
+        for (int i = 0; i < winMatchList.length; i++) {
+            String val = winMatchList[i];
+            st = new StringTokenizer(val, ":");
+            while (st.hasMoreTokens()) {
+                arr[0] = Integer.parseInt(st.nextToken());
+                arr[1] = Integer.parseInt(st.nextToken());
+                arr[2] = Integer.parseInt(st.nextToken());
+            }
+            checkForWn(arr);
+            arr[0] = 0;
+            arr[1] = 0;
+            arr[2] = 0;
+        }
+
+
+        return winFlag;
+    }
+
+    private boolean checkForWn(int arr[]) {
+        if (gameArr[arr[0]] == gameArr[arr[1]] && gameArr[arr[0]] == gameArr[arr[2]]) {
+            Log.d(TAG, "WIN  -->" + gameArr[arr[0]]);
+            drawWinLine(arr);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void drawWinLine(int arr[]) {
+        for (int i : arr) {
+            getCellViewFor(i).drawWin();
+        }
+
+    }
+
+    private CellView getCellViewFor(int position) {
+        CellView view;
+        switch (position) {
+            case 0:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_one));
+                break;
+            case 1:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_two));
+                break;
+            case 2:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_three));
+                break;
+            case 3:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_four));
+                break;
+            case 4:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_five));
+                break;
+            case 5:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_six));
+                break;
+            case 6:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_seven));
+                break;
+            case 7:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_eight));
+                break;
+            case 8:
+                view = ((CellView) gameLayout.findViewById(R.id.cell_nine));
+                break;
+            default:
+                view = null;
+        }
+        return view;
     }
 
     @Override
@@ -118,4 +214,23 @@ public class GameBoardVO {
                 "isPlayersConnected=" + isPlayersConnected +
                 '}';
     }
+
+    /**
+     * GameListener callbacks
+     * PLAYER MOVE
+     */
+
+    @Override
+    public void updateMove(int position, int row, int col, boolean isOpponentsMove) {
+        MOVE_COUNTER++;
+        gameGridArr[row][col] = playerType;
+        playerMoveListener.onPlayerMove(position, row, col);
+    }
+
+    public interface PlayerMoveListener {
+
+        void onPlayerMove(int position, int row, int col);
+
+    }
+
 }

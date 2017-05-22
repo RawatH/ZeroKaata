@@ -6,6 +6,8 @@
     </declare-styleable>
 
     <declare-styleable name="CellView">
-        <attr name="cellId" format="integer" />
+        <attr name="position" format="integer" />
+        <attr name="colId" format="integer" />
+        <attr name="rowId" format="integer" />
     </declare-styleable>
 </resources>

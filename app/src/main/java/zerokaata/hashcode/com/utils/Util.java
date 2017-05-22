@@ -20,4 +20,36 @@ public class Util {
         result = mBluetoothAdapter == null ? false : true;
         return result;
     }
+
+    public static String getPlayerSymbol(int playerType){
+        if (playerType == ZKConstants.PLAYER.TYPE_X) {
+            return  ZKConstants.MARK_X;
+        }
+        if (playerType == ZKConstants.PLAYER.TYPE_O) {
+            return  ZKConstants.MARK_O;
+        }
+        return null;
+    }
+
+    public static String getOpponentSymbol(int playerType){
+        if (playerType == ZKConstants.PLAYER.TYPE_X) {
+            return  ZKConstants.MARK_O;
+        }
+        if (playerType == ZKConstants.PLAYER.TYPE_O) {
+            return  ZKConstants.MARK_X;
+        }
+        return null;
+    }
+
+    public static String getJSONString (byte []  buffer){
+
+        StringBuffer sb = new StringBuffer();
+        for(byte b : buffer){
+            sb.append((char)b);
+            if(b == 125 ){
+                break;
+            }
+        }
+        return sb.toString();
+    }
 }

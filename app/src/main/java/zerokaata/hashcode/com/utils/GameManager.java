@@ -10,61 +10,70 @@ import zerokaata.hashcode.com.model.GameBoardVO;
  */
 
 public class GameManager {
-    private static GameManager boardManager;
+
+    private static GameManager gameManager;
     private static GameBoardVO gameBoardVO;
 
-    public static int GAME_COUNTER = 0;
 
-    private GameManager(){
+    private GameManager() {
 
     }
 
-    public  static GameManager getGameManager(){
-        if(boardManager == null){
-            boardManager = new GameManager();
+    public static GameManager getGameManager() {
+        if (gameManager == null) {
+            gameManager = new GameManager();
             gameBoardVO = GameBoardVO.getInstance();
         }
-        return boardManager;
+        return gameManager;
     }
 
 
-    public void setPlayerType( int playerType){
+    public CellView.GameListener getGameListener() {
+        return gameBoardVO;
+    }
+
+    public void setPlayerType(int playerType) {
         gameBoardVO.setPlayerType(playerType);
     }
-    public int getPlayerType( ){
+
+    public int getPlayerType() {
         return gameBoardVO.getPlayerType();
     }
 
-    public boolean isPlayersConnected(){
-        return  gameBoardVO.isPlayersConnected();
+    public String getPlayerSymbol() {
+        return gameBoardVO.getPlayerSymbol();
     }
 
-    public void setPlayersConnected(boolean flag){
+    public boolean isPlayersConnected() {
+        return gameBoardVO.isPlayersConnected();
+    }
+
+    public void setPlayersConnected(boolean flag) {
         gameBoardVO.setPlayersConnected(flag);
     }
 
-    public void setListener(CellView.MoveListener listener){
-        gameBoardVO.setListener(listener);
-    }
-    public CellView.MoveListener getListener(){
-        return gameBoardVO.getListener();
+    public void setListener(GameBoardVO.PlayerMoveListener listener) {
+        gameBoardVO.setPlayerMoveListener(listener);
     }
 
-    public void updateMove(String cellId){
+    public GameBoardVO.PlayerMoveListener getListener() {
+        return gameBoardVO.getPlayerMoveListener();
+    }
 
-        if(gameBoardVO != null){
-            GAME_COUNTER ++;
-            gameBoardVO.updateMoveOnBoard(cellId);
-            if(GAME_COUNTER == 9){
-                GAME_COUNTER = 0;
-                gameBoardVO.resetBoard();
-            }
+    public void updateOpponentMove(String data) {
+
+        if (gameBoardVO != null) {
+            gameBoardVO.updateOpponentMove(data);
         }
     }
 
-    public void setGameBoardLayout(View layout){
+    public void setGameBoardLayout(View layout) {
 
         gameBoardVO.setGameLayout(layout);
+
+    }
+
+    public void resetGame() {
 
     }
 

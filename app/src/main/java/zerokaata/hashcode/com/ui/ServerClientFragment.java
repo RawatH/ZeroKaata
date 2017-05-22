@@ -28,6 +28,9 @@ import android.view.ViewStub;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,16 +40,16 @@ import zerokaata.hashcode.com.application.ZKApplication;
 import zerokaata.hashcode.com.communication.AcceptThread;
 import zerokaata.hashcode.com.communication.ConnectThread;
 import zerokaata.hashcode.com.communication.DataTransferThread;
-import zerokaata.hashcode.com.customview.CellView;
 import zerokaata.hashcode.com.customview.IndicatorView;
 import zerokaata.hashcode.com.listener.AlertSelectionListener;
+import zerokaata.hashcode.com.model.GameBoardVO;
 import zerokaata.hashcode.com.utils.IntentFactory;
 import zerokaata.hashcode.com.utils.Util;
 import zerokaata.hashcode.com.utils.ZKConstants;
 
 
 public class ServerClientFragment extends Fragment implements IndicatorView.PlayModeSelectionListener, AlertSelectionListener,
-        AcceptThread.BluetoothClientListener, ConnectThread.ServerSocketListener, CellView.MoveListener {
+        AcceptThread.BluetoothClientListener, ConnectThread.ServerSocketListener, GameBoardVO.PlayerMoveListener {
 
     private TextView bannerTxt;
     private Context ctx;
@@ -79,16 +82,16 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             switch (msg.what) {
                 case ZKConstants.MSG_READ:
                     Log.d(TAG, "Msg Read : " + data);
-                    application.getGameManager().updateMove(data);
+                    application.getGameManager().updateOpponentMove(data);
                     break;
 
                 case ZKConstants.MSG_WRITE:
                     Log.d(TAG, "Msg Write : " + data);
+
                     break;
             }
         }
     }
-
 
 
     public ServerClientFragment() {
@@ -116,7 +119,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     }
 
     private void init(View view) {
-        application = (ZKApplication)getActivity().getApplication();
+        application = (ZKApplication) getActivity().getApplication();
         gameViewStub = ((ViewStub) view.findViewById(R.id.gameStub));
         bannerTxt = (TextView) view.findViewById(R.id.bannerTxt);
         serverBtn = (IndicatorView) view.findViewById(R.id.bserver);
@@ -381,12 +384,29 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         dataTransferThread.start();
     }
 
-    @Override
-    public void sendMessage(String msg) {
 
-        if(dataTransferThread != null){
-            dataTransferThread.write(msg);
+    /**
+     * Move made by player. Send message to the other player.
+     *
+     * @param row
+     * @param col
+     */
+    @Override
+    public void onPlayerMove(int position , int row, int col) {
+        if (dataTransferThread != null) {
+            try {
+                JSONObject data = new JSONObject();
+                data.put("rowId", row);
+                data.put("colId", col);
+                data.put("position", position);
+
+                dataTransferThread.write(data.toString());
+            } catch (JSONException jse) {
+                jse.printStackTrace();
+            }
+
         }
     }
+
 
 }
