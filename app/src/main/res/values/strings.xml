@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">ZeroKaata</string>
+    <string name="connect_as">Join as ...</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="challenger">0</string>
+    <string name="peer">X</string>
+
+    <string name="uuid">1bdc9f15-fbc5-47dd-ba2b-9c65ec85a13c</string>
+</resources>

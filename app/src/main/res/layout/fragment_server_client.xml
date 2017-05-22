@@ -1,0 +1,71 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/bannerTxt"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".2"
+        android:background="@color/zblue"
+        android:gravity="center"
+        android:text="@string/connect_as"
+        android:textColor="#ffffff"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".5"
+        android:animateLayoutChanges="true"
+        android:background="@drawable/bg"
+        android:gravity="center">
+
+        <zerokaata.hashcode.com.customview.IndicatorView
+            android:id="@+id/bserver"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            custom:bgColor="#16A085"
+            custom:name="@string/challenger" />
+
+        <zerokaata.hashcode.com.customview.IndicatorView
+            android:id="@+id/bclient"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            custom:bgColor="#ab3456"
+            custom:name="@string/peer" />
+
+        <ViewStub
+            android:id="@+id/gameStub"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/panel_import"
+            android:layout_margin="10dp"
+            android:layout="@layout/game_layout" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".2"
+        android:background="@color/zblue"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:textColor="#ffffff"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</LinearLayout>

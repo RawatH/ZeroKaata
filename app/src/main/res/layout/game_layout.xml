@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/zblue">
+
+        <TableRow
+            android:id="@+id/tableRow1"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_one"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="1"
+                />
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_two"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="2"/>
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_three"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="3" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_four"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="4" />
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_five"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="5" />
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_six"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="6" />
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/tableRow3"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_seven"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="7" />
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_eight"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="8" />
+
+            <zerokaata.hashcode.com.customview.CellView
+                android:id="@+id/cell_nine"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                custom:cellId="9" />
+
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>
