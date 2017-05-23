@@ -41,6 +41,16 @@ public class Util {
         return null;
     }
 
+    public static int getOpponentPlayerType(int playerType){
+        if (playerType == ZKConstants.PLAYER.TYPE_X) {
+            return  ZKConstants.PLAYER.TYPE_O;
+        }
+        if (playerType == ZKConstants.PLAYER.TYPE_O) {
+            return  ZKConstants.PLAYER.TYPE_X;
+        }
+        return -1;
+    }
+
     public static String getJSONString (byte []  buffer){
 
         StringBuffer sb = new StringBuffer();

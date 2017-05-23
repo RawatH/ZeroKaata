@@ -28,15 +28,15 @@ public class GameBoardVO implements CellView.GameListener {
     private View gameLayout;
     public static int TOTAL_MOVES = 9;
     public static int MOVE_COUNTER = 0;
-
-    private int[][] gameGridArr = new int[3][3];
+    public boolean isMyTurn = true;
     private int gameArr[] = new int[9];
+    private int winArr[];
+    private static final String TAG = GameBoardVO.class.getSimpleName();
 
     private String[] winMatchList = {"0:1:2", "3:4:5", "6:7:8",
             "0:3:6", "1:4:7", "2:5:8",
             "0:4:8", "2:4:6"};
 
-    private static final String TAG = GameBoardVO.class.getSimpleName();
 
     private GameBoardVO() {
     }
@@ -49,6 +49,13 @@ public class GameBoardVO implements CellView.GameListener {
 
     }
 
+    public boolean isMyTurn() {
+        return isMyTurn;
+    }
+
+    public void setMyTurn(boolean myTurn) {
+        isMyTurn = myTurn;
+    }
 
     public void setGameLayout(View gameLayout) {
         this.gameLayout = gameLayout;
@@ -86,21 +93,21 @@ public class GameBoardVO implements CellView.GameListener {
 
     /**
      * UPDATE OPPONENT MOVE
+     *
      * @param data
      */
     public void updateOpponentMove(String data) {
 
         try {
             JSONObject jsonObject = new JSONObject(data);
-            int row = jsonObject.optInt("rowId");
-            int col = jsonObject.optInt("colId");
             int position = jsonObject.optInt("position");
-            gameGridArr[row][col] = playerType;
-            gameArr[position] = playerType;
+
+            gameArr[position] = Util.getOpponentPlayerType(playerType);
 
             Log.d(TAG, "Move count : " + MOVE_COUNTER);
             if (gameLayout != null) {
                 getCellViewFor(position).updateMove();
+                isMyTurn = true;
             }
 
             MOVE_COUNTER++;
@@ -117,7 +124,18 @@ public class GameBoardVO implements CellView.GameListener {
 
 
     public void resetBoard() {
+        //reset my turn flag
+        setMyTurn(false);
+
+        //reset move counter
         MOVE_COUNTER = 0;
+
+        //reset game arr
+        for (int i = 0; i < gameArr.length; i++) {
+            gameArr[i] = 0;
+        }
+
+        //reset all cells
         ((CellView) gameLayout.findViewById(R.id.cell_one)).reset();
         ((CellView) gameLayout.findViewById(R.id.cell_two)).reset();
         ((CellView) gameLayout.findViewById(R.id.cell_three)).reset();
@@ -127,7 +145,6 @@ public class GameBoardVO implements CellView.GameListener {
         ((CellView) gameLayout.findViewById(R.id.cell_seven)).reset();
         ((CellView) gameLayout.findViewById(R.id.cell_eight)).reset();
         ((CellView) gameLayout.findViewById(R.id.cell_nine)).reset();
-
     }
 
 
@@ -151,13 +168,15 @@ public class GameBoardVO implements CellView.GameListener {
             arr[2] = 0;
         }
 
-
         return winFlag;
     }
 
     private boolean checkForWn(int arr[]) {
+        if (gameArr[arr[0]] == 0 || gameArr[arr[1]] == 0 || gameArr[arr[2]] == 0) {
+            return false;
+        }
         if (gameArr[arr[0]] == gameArr[arr[1]] && gameArr[arr[0]] == gameArr[arr[2]]) {
-            Log.d(TAG, "WIN  -->" + gameArr[arr[0]]);
+            Log.d(TAG, "WIN  ~~~~~~>" + gameArr[arr[0]]);
             drawWinLine(arr);
             return true;
         }
@@ -166,6 +185,7 @@ public class GameBoardVO implements CellView.GameListener {
     }
 
     private void drawWinLine(int arr[]) {
+        winArr = arr;
         for (int i : arr) {
             getCellViewFor(i).drawWin();
         }
@@ -222,9 +242,20 @@ public class GameBoardVO implements CellView.GameListener {
 
     @Override
     public void updateMove(int position, int row, int col, boolean isOpponentsMove) {
+        isMyTurn = false;
         MOVE_COUNTER++;
-        gameGridArr[row][col] = playerType;
+        gameArr[position] = playerType;
         playerMoveListener.onPlayerMove(position, row, col);
+    }
+
+    @Override
+    public boolean isMyTunNow() {
+        return isMyTurn;
+    }
+
+    @Override
+    public int[] getWinArr() {
+        return winArr;
     }
 
     public interface PlayerMoveListener {

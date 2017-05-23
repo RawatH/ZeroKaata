@@ -7,11 +7,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import zerokaata.hashcode.com.R;
 import zerokaata.hashcode.com.application.ZKApplication;
@@ -36,9 +40,10 @@ public class CellView extends View {
     private boolean winFlag;
     private String playerSymbol;
     private GestureDetector mDetector = new GestureDetector(context, new CellView.GestureListener());
-
+    private static final String TAG = CellView.class.getSimpleName();
     private GameListener gameListener;
     private int playerType;
+    private int winArr[];
 
     public CellView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -77,8 +82,69 @@ public class CellView extends View {
         float centerX = canvasWidth / 2;
         float centerY = canvasHeight / 2;
 
-        if(winFlag) {
-            paint.setColor(winFlag ? Color.RED : Color.parseColor("#16A085"));
+        if (winFlag && isWinCell()) {
+            paint.setColor(Color.RED);
+            switch (getWinLineType()) {
+                case WINLINE.HORIZONTAL:
+                    switch (position) {
+                        case 0:
+                        case 3:
+                        case 6:
+                            canvas.drawLine(centerX, centerY, rect.right, rect.bottom / 2, paint);
+                            break;
+                        case 1:
+                        case 4:
+                        case 7:
+                            canvas.drawLine(rect.left, rect.bottom / 2, rect.right, rect.bottom / 2, paint);
+                            break;
+                        case 2:
+                        case 5:
+                        case 8:
+                            canvas.drawLine(rect.left, rect.bottom / 2, centerX, centerY, paint);
+                            break;
+                    }
+                    break;
+                case WINLINE.VERTICAL:
+                    switch (position) {
+                        case 0:
+                        case 1:
+                        case 2:
+                            canvas.drawLine(centerX, centerY, rect.bottom, rect.right / 2, paint);
+                            break;
+                        case 3:
+                        case 4:
+                        case 5:
+                            canvas.drawLine(rect.top, rect.right / 2, rect.bottom, rect.right / 2, paint);
+                            break;
+                        case 6:
+                        case 7:
+                        case 8:
+                            canvas.drawLine(rect.top, rect.right / 2, centerX, centerY, paint);
+                            break;
+                    }
+                    break;
+
+                case WINLINE.DIAGONAL:
+                    switch (position) {
+                        case 0:
+                            canvas.drawLine(centerX, centerY, rect.bottom, rect.right, paint);
+                            break;
+                        case 2:
+                            canvas.drawLine(centerX, centerY, rect.left, rect.bottom, paint);
+                            break;
+                        case 4:
+                            canvas.drawLine(rect.top, rect.left, rect.bottom, rect.right, paint);
+                            break;
+                        case 6:
+                            canvas.drawLine(centerX, centerY, rect.top, rect.right, paint);
+                            break;
+                        case 8:
+                            canvas.drawLine(rect.top, rect.left, rect.right, rect.bottom, paint);
+                            break;
+                    }
+                    break;
+            }
+
             canvas.drawRect(rect, paint);
         }
 
@@ -99,7 +165,7 @@ public class CellView extends View {
 
                 canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
-
+                break;
             case 3:
                 canvas.drawLine(rect.left, rect.top, rect.right, rect.top, paint);
                 canvas.drawLine(rect.left, rect.bottom, rect.right, rect.bottom, paint);
@@ -132,10 +198,10 @@ public class CellView extends View {
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
                 break;
         }
-        paint.setColor(Color.WHITE);
+//        paint.setColor(Color.WHITE);
         paint.setStrokeWidth(0);
-        radii = centerX > centerY ? centerY : centerX;
-        canvas.drawCircle(centerX, centerY, radii - 10, paint);
+//        radii = centerX > centerY ? centerY : centerX;
+//        canvas.drawCircle(centerX, centerY, radii - 10, paint);
 
         if (isUserClick) {
             // o , x color
@@ -169,13 +235,13 @@ public class CellView extends View {
         boolean result = mDetector.onTouchEvent(event);
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (!isUserClick) {
+                if (!isUserClick && gameListener.isMyTunNow()) {
                     //TODO : Move by a player . Use GameListener
                     isUserClick = true;
                     gameListener.updateMove(position, rowId, colId, false);
                     invalidate();
                 } else {
-                    Util.showToast(context, "Already clicked");
+                    Util.showToast(context, "Already clicked or Not ur turn now.");
                 }
                 result = true;
             }
@@ -195,18 +261,55 @@ public class CellView extends View {
 
     }
 
+    private boolean isWinCell() {
+        boolean flag = false;
+        for (int i : winArr) {
+            if (position == i) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
+
+    private int getWinLineType() {
+        switch (winArr[1] - winArr[0]) {
+            case 1:
+                return WINLINE.HORIZONTAL;
+            case 3:
+                return WINLINE.VERTICAL;
+            default:
+                return WINLINE.DIAGONAL;
+        }
+    }
+
     public void drawWin() {
         winFlag = true;
+        winArr = gameListener.getWinArr();
         invalidate();
     }
 
     public void reset() {
         isUserClick = false;
+        winFlag = false;
+        winArr = null;
         invalidate();
     }
 
 
     public interface GameListener {
         void updateMove(int position, int row, int col, boolean isOpponentsMove);
+
+        boolean isMyTunNow();
+
+        int[] getWinArr();
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({WINLINE.HORIZONTAL, WINLINE.VERTICAL, WINLINE.DIAGONAL})
+    public @interface WINLINE {
+        int HORIZONTAL = 1;
+        int VERTICAL = 3;
+        int DIAGONAL = 2;
     }
 }
