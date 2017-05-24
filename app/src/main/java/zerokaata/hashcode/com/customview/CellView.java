@@ -45,6 +45,10 @@ public class CellView extends View {
     private int playerType;
     private int winArr[];
 
+    private float winCenterStartX = 0.0f;
+    private float winCenterStartY = 0.0f;
+
+
     public CellView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
@@ -72,6 +76,7 @@ public class CellView extends View {
         playerType = ((ZKApplication) ((HomeActivity) context).getApplication()).getGameManager().getPlayerType();
         Typeface plain = Typeface.createFromAsset(context.getAssets(), "game_font.ttf");
         paint.setTypeface(plain);
+
     }
 
     @Override
@@ -82,8 +87,12 @@ public class CellView extends View {
         float centerX = canvasWidth / 2;
         float centerY = canvasHeight / 2;
 
+        paint.setStrokeWidth(10.0f);
+
         if (winFlag && isWinCell()) {
-            paint.setColor(Color.RED);
+            paint.setColor(Color.BLUE);
+
+
             switch (getWinLineType()) {
                 case WINLINE.HORIZONTAL:
                     switch (position) {
@@ -109,17 +118,17 @@ public class CellView extends View {
                         case 0:
                         case 1:
                         case 2:
-                            canvas.drawLine(centerX, centerY, rect.bottom, rect.right / 2, paint);
+                            canvas.drawLine(centerX, centerY, rect.right / 2, rect.bottom, paint);
                             break;
                         case 3:
                         case 4:
                         case 5:
-                            canvas.drawLine(rect.top, rect.right / 2, rect.bottom, rect.right / 2, paint);
+                            canvas.drawLine(rect.right / 2, rect.top, rect.right / 2, rect.bottom, paint);
                             break;
                         case 6:
                         case 7:
                         case 8:
-                            canvas.drawLine(rect.top, rect.right / 2, centerX, centerY, paint);
+                            canvas.drawLine(rect.right / 2, rect.top, centerX, centerY, paint);
                             break;
                     }
                     break;
@@ -127,29 +136,33 @@ public class CellView extends View {
                 case WINLINE.DIAGONAL:
                     switch (position) {
                         case 0:
-                            canvas.drawLine(centerX, centerY, rect.bottom, rect.right, paint);
+                            canvas.drawLine(centerX, centerY, rect.right, rect.bottom, paint);
                             break;
                         case 2:
                             canvas.drawLine(centerX, centerY, rect.left, rect.bottom, paint);
                             break;
                         case 4:
-                            canvas.drawLine(rect.top, rect.left, rect.bottom, rect.right, paint);
+                            if (winArr[0] == 0) {
+                                canvas.drawLine(rect.top, rect.left, rect.right, rect.bottom, paint);
+                            }
+                            if (winArr[0] == 2) {
+                                canvas.drawLine(rect.left, rect.bottom, rect.right, rect.top, paint);
+                            }
+
                             break;
                         case 6:
-                            canvas.drawLine(centerX, centerY, rect.top, rect.right, paint);
+                            canvas.drawLine(centerX, centerY, rect.right, rect.top, paint);
                             break;
                         case 8:
-                            canvas.drawLine(rect.top, rect.left, rect.right, rect.bottom, paint);
+                            canvas.drawLine(rect.left, rect.top, centerX, centerY, paint);
                             break;
                     }
                     break;
             }
 
-            canvas.drawRect(rect, paint);
         }
 
         paint.setColor(Color.BLACK);
-        paint.setStrokeWidth(10.0f);
 
         switch (position) {
             case 0:
@@ -273,14 +286,19 @@ public class CellView extends View {
     }
 
     private int getWinLineType() {
+        int winLine = -1;
         switch (winArr[1] - winArr[0]) {
             case 1:
-                return WINLINE.HORIZONTAL;
+                winLine = WINLINE.HORIZONTAL;
+                break;
             case 3:
-                return WINLINE.VERTICAL;
+                winLine = WINLINE.VERTICAL;
+                break;
             default:
-                return WINLINE.DIAGONAL;
+                winLine = WINLINE.DIAGONAL;
+                break;
         }
+        return winLine;
     }
 
     public void drawWin() {
@@ -303,6 +321,8 @@ public class CellView extends View {
         boolean isMyTunNow();
 
         int[] getWinArr();
+
+
     }
 
     @Retention(RetentionPolicy.SOURCE)
@@ -311,5 +331,6 @@ public class CellView extends View {
         int HORIZONTAL = 1;
         int VERTICAL = 3;
         int DIAGONAL = 2;
+
     }
 }

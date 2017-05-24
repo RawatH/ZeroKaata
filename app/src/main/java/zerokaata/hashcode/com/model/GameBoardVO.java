@@ -31,6 +31,9 @@ public class GameBoardVO implements CellView.GameListener {
     public boolean isMyTurn = true;
     private int gameArr[] = new int[9];
     private int winArr[];
+
+
+
     private static final String TAG = GameBoardVO.class.getSimpleName();
 
     private String[] winMatchList = {"0:1:2", "3:4:5", "6:7:8",
@@ -48,6 +51,7 @@ public class GameBoardVO implements CellView.GameListener {
         return instance;
 
     }
+
 
     public boolean isMyTurn() {
         return isMyTurn;
@@ -185,8 +189,11 @@ public class GameBoardVO implements CellView.GameListener {
     }
 
     private void drawWinLine(int arr[]) {
-        winArr = arr;
-        for (int i : arr) {
+        winArr = new int[3];
+        for (int i = 0; i < arr.length; i++) {
+            winArr[i] = arr[i];
+        }
+        for (int i : winArr) {
             getCellViewFor(i).drawWin();
         }
 
@@ -246,6 +253,9 @@ public class GameBoardVO implements CellView.GameListener {
         MOVE_COUNTER++;
         gameArr[position] = playerType;
         playerMoveListener.onPlayerMove(position, row, col);
+        if (MOVE_COUNTER >= 5) {
+            checkForWin();
+        }
     }
 
     @Override
@@ -257,6 +267,7 @@ public class GameBoardVO implements CellView.GameListener {
     public int[] getWinArr() {
         return winArr;
     }
+
 
     public interface PlayerMoveListener {
 
