@@ -67,7 +67,9 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
     private final static int REQUEST_CODE_LOC = 2;
     private View gameViewStub;
+    private View scoreViewStub;
     private View boardInfatedView;
+    private View scoreInflatedView;
 
     private ZKApplication application;
     private static final String TAG = ServerClientFragment.class.getSimpleName();
@@ -120,7 +122,8 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
     private void init(View view) {
         application = (ZKApplication) getActivity().getApplication();
-        gameViewStub = ((ViewStub) view.findViewById(R.id.gameStub));
+        gameViewStub = view.findViewById(R.id.gameStub);
+        scoreViewStub = view.findViewById(R.id.scoreStub);
         bannerTxt = (TextView) view.findViewById(R.id.bannerTxt);
         serverBtn = (IndicatorView) view.findViewById(R.id.bserver);
         serverBtn.setListener(this);
@@ -348,6 +351,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 application.getGameManager().setListener(ServerClientFragment.this);
                 boardInfatedView = ((ViewStub) gameViewStub).inflate();
                 initiateDataThread();
+                inflateScoreBardUI();
             }
         });
 
@@ -372,13 +376,18 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 application.getGameManager().setListener(ServerClientFragment.this);
                 boardInfatedView = ((ViewStub) gameViewStub).inflate();
                 initiateDataThread();
-
+                inflateScoreBardUI();
             }
         });
 
     }
 
+    private void inflateScoreBardUI() {
+        scoreViewStub = ((ViewStub) scoreViewStub).inflate();
+    }
+
     private void initiateDataThread() {
+        bannerTxt.setVisibility(View.GONE);
         application.getGameManager().setGameBoardLayout(boardInfatedView);
         dataTransferThread = new DataTransferThread(bluetoothSocket, messenger);
         dataTransferThread.start();
@@ -392,7 +401,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
      * @param col
      */
     @Override
-    public void onPlayerMove(int position , int row, int col) {
+    public void onPlayerMove(int position, int row, int col) {
         if (dataTransferThread != null) {
             try {
                 JSONObject data = new JSONObject();

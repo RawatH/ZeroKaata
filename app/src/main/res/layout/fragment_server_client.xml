@@ -2,7 +2,8 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:animateLayoutChanges="true">
 
 
     <TextView
@@ -16,6 +17,14 @@
         android:textColor="#ffffff"
         android:textSize="30sp"
         android:textStyle="bold" />
+
+    <ViewStub
+        android:id="@+id/scoreStub"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".2"
+        android:inflatedId="@+id/panel_score"
+        android:layout="@layout/game_scoreboard_layout" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,7 +55,7 @@
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
             android:inflatedId="@+id/panel_import"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:layout="@layout/game_layout" />
 
     </LinearLayout>
