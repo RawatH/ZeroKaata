@@ -36,7 +36,8 @@ public class CellView extends View {
     private int colId;
     private int position;
     private static float radii;
-    private boolean isUserClick;
+    private boolean isUserMove;
+    private boolean isOpponentMove;
     private boolean winFlag;
     private String playerSymbol;
     private GestureDetector mDetector = new GestureDetector(context, new CellView.GestureListener());
@@ -90,9 +91,7 @@ public class CellView extends View {
         paint.setStrokeWidth(10.0f);
 
         if (winFlag && isWinCell()) {
-            paint.setColor(Color.BLUE);
-
-
+            paint.setColor(Color.parseColor("#34A016"));
             switch (getWinLineType()) {
                 case WINLINE.HORIZONTAL:
                     switch (position) {
@@ -162,7 +161,7 @@ public class CellView extends View {
 
         }
 
-        paint.setColor(Color.BLACK);
+        paint.setColor(Color.parseColor("#e96725"));
 
         switch (position) {
             case 0:
@@ -211,24 +210,27 @@ public class CellView extends View {
                 canvas.drawLine(rect.left, rect.top, rect.left, rect.bottom, paint);
                 break;
         }
-//        paint.setColor(Color.WHITE);
+
         paint.setStrokeWidth(0);
-//        radii = centerX > centerY ? centerY : centerX;
-//        canvas.drawCircle(centerX, centerY, radii - 10, paint);
 
-        if (isUserClick) {
-            // o , x color
-            paint.setColor(Color.parseColor("#ab3456"));
-            paint.setTextSize(120);
-            paint.setTextAlign(Paint.Align.CENTER);
-            paint.setStyle(Paint.Style.STROKE);
-
+        if (isUserMove) {
+            setTextStyling(paint);
             canvas.drawText(playerSymbol, centerX, centerY + 40, paint);
+        }
 
-            setPlayerSymbol();
+        if (isOpponentMove) {
+            setTextStyling(paint);
+            canvas.drawText(Util.getOpponentSymbol(playerType), centerX, centerY + 40, paint);
         }
 
 
+    }
+
+    private void setTextStyling(Paint paint) {
+        paint.setColor(Color.parseColor("#ab3456"));
+        paint.setTextSize(120);
+        paint.setTextAlign(Paint.Align.CENTER);
+        paint.setStyle(Paint.Style.STROKE);
     }
 
     private void setPlayerSymbol() {
@@ -248,9 +250,9 @@ public class CellView extends View {
         boolean result = mDetector.onTouchEvent(event);
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (!isUserClick && gameListener.isMyTunNow()) {
+                if (!isUserMove && gameListener.isMyTunNow()) {
                     //TODO : Move by a player . Use GameListener
-                    isUserClick = true;
+                    isUserMove = true;
                     gameListener.updateMove(position, rowId, colId, false);
                     invalidate();
                 } else {
@@ -263,13 +265,13 @@ public class CellView extends View {
     }
 
     public void updateMove() {
-        isUserClick = true;
+        isOpponentMove = true;
 
-        if (playerSymbol.equalsIgnoreCase(ZKConstants.MARK_X)) {
-            playerSymbol = ZKConstants.MARK_O;
-        } else {
-            playerSymbol = ZKConstants.MARK_X;
-        }
+//        if (playerSymbol.equalsIgnoreCase(ZKConstants.MARK_X)) {
+//            playerSymbol = ZKConstants.MARK_O;
+//        } else {
+//            playerSymbol = ZKConstants.MARK_X;
+//        }
         invalidate();
 
     }
@@ -308,7 +310,7 @@ public class CellView extends View {
     }
 
     public void reset() {
-        isUserClick = false;
+        isUserMove = false;
         winFlag = false;
         winArr = null;
         invalidate();
