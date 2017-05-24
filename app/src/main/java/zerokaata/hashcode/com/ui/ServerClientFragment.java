@@ -18,6 +18,7 @@ import android.os.Messenger;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -68,8 +69,10 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     private final static int REQUEST_CODE_LOC = 2;
     private View gameViewStub;
     private View scoreViewStub;
+    private View gameControlStub;
     private View boardInfatedView;
     private View scoreInflatedView;
+    private View gameControlView;
 
     private ZKApplication application;
     private static final String TAG = ServerClientFragment.class.getSimpleName();
@@ -124,6 +127,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         application = (ZKApplication) getActivity().getApplication();
         gameViewStub = view.findViewById(R.id.gameStub);
         scoreViewStub = view.findViewById(R.id.scoreStub);
+        gameControlStub = view.findViewById(R.id.gameControlsStub);
         bannerTxt = (TextView) view.findViewById(R.id.bannerTxt);
         serverBtn = (IndicatorView) view.findViewById(R.id.bserver);
         serverBtn.setListener(this);
@@ -383,11 +387,28 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     }
 
     private void inflateScoreBardUI() {
+        cancel.setVisibility(View.GONE);
+        bannerTxt.setVisibility(View.GONE);
         scoreViewStub = ((ViewStub) scoreViewStub).inflate();
+        gameControlStub = ((ViewStub) gameControlStub).inflate();
+
+        CardView closeGame = (CardView)gameControlStub.findViewById(R.id.close_container);
+        closeGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Util.showToast(getActivity() , "Close");
+            }
+        });
+        CardView resetGame = (CardView)gameControlStub.findViewById(R.id.reset_container);
+        resetGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Util.showToast(getActivity() , "Reset");
+            }
+        });
     }
 
     private void initiateDataThread() {
-        bannerTxt.setVisibility(View.GONE);
         application.getGameManager().setGameBoardLayout(boardInfatedView);
         dataTransferThread = new DataTransferThread(bluetoothSocket, messenger);
         dataTransferThread.start();

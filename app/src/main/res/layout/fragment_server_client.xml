@@ -2,8 +2,8 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:animateLayoutChanges="true">
+    android:animateLayoutChanges="true"
+    android:orientation="vertical">
 
 
     <TextView
@@ -54,8 +54,8 @@
             android:id="@+id/gameStub"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:inflatedId="@+id/panel_import"
             android:layout_margin="5dp"
+            android:inflatedId="@+id/panel_import"
             android:layout="@layout/game_layout" />
 
     </LinearLayout>
@@ -75,6 +75,14 @@
             android:textColor="#ffffff"
             android:textSize="30sp"
             android:textStyle="bold" />
+
+        <ViewStub
+            android:id="@+id/gameControlsStub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:inflatedId="@+id/panel_gamecontrols"
+            android:layout="@layout/game_close_reset_layout" />
     </LinearLayout>
 
 </LinearLayout>
