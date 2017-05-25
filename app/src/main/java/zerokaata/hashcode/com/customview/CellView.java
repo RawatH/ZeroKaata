@@ -21,7 +21,6 @@ import zerokaata.hashcode.com.R;
 import zerokaata.hashcode.com.application.ZKApplication;
 import zerokaata.hashcode.com.ui.HomeActivity;
 import zerokaata.hashcode.com.utils.Util;
-import zerokaata.hashcode.com.utils.ZKConstants;
 
 
 /**
@@ -250,7 +249,7 @@ public class CellView extends View {
         boolean result = mDetector.onTouchEvent(event);
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (!isUserMove && gameListener.isMyTunNow()) {
+                if (!isUserMove && gameListener.isUserTurnNow()) {
                     //TODO : Move by a player . Use GameListener
                     isUserMove = true;
                     gameListener.updateMove(position, rowId, colId, false);
@@ -320,9 +319,11 @@ public class CellView extends View {
     public interface GameListener {
         void updateMove(int position, int row, int col, boolean isOpponentsMove);
 
-        boolean isMyTunNow();
+        boolean isUserTurnNow();
 
         int[] getWinArr();
+
+        boolean getWinStatus();
 
 
     }

@@ -26,11 +26,14 @@ public class GameBoardVO implements CellView.GameListener {
     private CellView.GameListener gameListener;
 
     private View gameLayout;
-    public static int TOTAL_MOVES = 9;
+    public static final int TOTAL_MOVES = 9;
     public static int MOVE_COUNTER = 0;
-    public boolean isMyTurn = true;
+    public boolean isUserTurn = true;
     private int gameArr[] = new int[9];
     private int winArr[];
+    private boolean winFlag;
+    private static int USER_SCORE;
+    private static int OPPONENT_SCORE;
 
 
 
@@ -53,12 +56,12 @@ public class GameBoardVO implements CellView.GameListener {
     }
 
 
-    public boolean isMyTurn() {
-        return isMyTurn;
+    public boolean isUserTurn() {
+        return isUserTurn;
     }
 
-    public void setMyTurn(boolean myTurn) {
-        isMyTurn = myTurn;
+    public void setUserTurn(boolean userTurn) {
+        isUserTurn = userTurn;
     }
 
     public void setGameLayout(View gameLayout) {
@@ -111,7 +114,7 @@ public class GameBoardVO implements CellView.GameListener {
             Log.d(TAG, "Move count : " + MOVE_COUNTER);
             if (gameLayout != null) {
                 getCellViewFor(position).updateMove();
-                isMyTurn = true;
+                isUserTurn = true;
             }
 
             MOVE_COUNTER++;
@@ -129,7 +132,7 @@ public class GameBoardVO implements CellView.GameListener {
 
     public void resetBoard() {
         //reset my turn flag
-        setMyTurn(false);
+        setUserTurn(false);
 
         //reset move counter
         MOVE_COUNTER = 0;
@@ -139,16 +142,14 @@ public class GameBoardVO implements CellView.GameListener {
             gameArr[i] = 0;
         }
 
+        //reset win flag
+        winFlag = false;
+
         //reset all cells
-        ((CellView) gameLayout.findViewById(R.id.cell_one)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_two)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_three)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_four)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_five)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_six)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_seven)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_eight)).reset();
-        ((CellView) gameLayout.findViewById(R.id.cell_nine)).reset();
+        for (int i = 0; i < 9; i++) {
+            getCellViewFor(i).reset();
+        }
+
     }
 
 
@@ -166,7 +167,7 @@ public class GameBoardVO implements CellView.GameListener {
                 arr[1] = Integer.parseInt(st.nextToken());
                 arr[2] = Integer.parseInt(st.nextToken());
             }
-            checkForWn(arr);
+            checkForWin(arr);
             arr[0] = 0;
             arr[1] = 0;
             arr[2] = 0;
@@ -175,12 +176,13 @@ public class GameBoardVO implements CellView.GameListener {
         return winFlag;
     }
 
-    private boolean checkForWn(int arr[]) {
+    private boolean checkForWin(int arr[]) {
         if (gameArr[arr[0]] == 0 || gameArr[arr[1]] == 0 || gameArr[arr[2]] == 0) {
             return false;
         }
         if (gameArr[arr[0]] == gameArr[arr[1]] && gameArr[arr[0]] == gameArr[arr[2]]) {
             Log.d(TAG, "WIN  ~~~~~~>" + gameArr[arr[0]]);
+            winFlag = true;
             drawWinLine(arr);
             return true;
         }
@@ -249,7 +251,7 @@ public class GameBoardVO implements CellView.GameListener {
 
     @Override
     public void updateMove(int position, int row, int col, boolean isOpponentsMove) {
-        isMyTurn = false;
+        isUserTurn = false;
         MOVE_COUNTER++;
         gameArr[position] = playerType;
         playerMoveListener.onPlayerMove(position, row, col);
@@ -259,8 +261,8 @@ public class GameBoardVO implements CellView.GameListener {
     }
 
     @Override
-    public boolean isMyTunNow() {
-        return isMyTurn;
+    public boolean isUserTurnNow() {
+        return isUserTurn;
     }
 
     @Override
@@ -268,10 +270,16 @@ public class GameBoardVO implements CellView.GameListener {
         return winArr;
     }
 
+    @Override
+    public  boolean getWinStatus(){
+        return winFlag;
+    }
+
 
     public interface PlayerMoveListener {
 
         void onPlayerMove(int position, int row, int col);
+        void updateScoreBoard(int userScore , int opponentScore);
 
     }
 

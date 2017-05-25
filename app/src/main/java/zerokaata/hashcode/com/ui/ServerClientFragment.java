@@ -438,5 +438,10 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         }
     }
 
+    @Override
+    public void updateScoreBoard(int userScore, int opponentScore) {
+
+    }
+
 
 }
