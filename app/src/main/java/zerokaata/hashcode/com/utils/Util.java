@@ -66,14 +66,6 @@ public class Util {
         return sb.toString();
     }
 
-    public static int getWinnerType(int userPlayerType, int winArr[]) {
-
-        if (winArr[0] == userPlayerType) {
-            return ZKConstants.PLAYER.TYPE_O;
-        } else {
-            return ZKConstants.PLAYER.TYPE_X;
-        }
-    }
 
     public static JSONObject getMessage(int msgType, int dataArr[]) throws JSONException {
 

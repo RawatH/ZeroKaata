@@ -40,6 +40,7 @@
                 android:maxLines="1"
                 android:textColor="#16A085"
                 android:textSize="40sp"
+                android:text="0"
                 android:textStyle="bold" />
 
             <TextView
@@ -94,6 +95,7 @@
                 android:maxLines="1"
                 android:textColor="#ab3456"
                 android:textSize="40sp"
+                android:text="0"
                 android:textStyle="bold" />
 
             <TextView

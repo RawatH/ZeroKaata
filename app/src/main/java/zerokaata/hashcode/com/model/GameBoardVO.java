@@ -191,9 +191,9 @@ public class GameBoardVO implements CellView.GameListener {
             Log.d(TAG, "WIN  ~~~~~~>" + gameArr[arr[0]]);
             winFlag = true;
             drawWinLine(arr);
-            int winPlayerType = Util.getWinnerType(playerType ,winArr);
 
-            if(winPlayerType == playerType){
+
+            if(gameArr[arr[0]] == playerType){
                 USER_SCORE++;
             }else{
                 OPPONENT_SCORE++;
@@ -300,6 +300,7 @@ public class GameBoardVO implements CellView.GameListener {
     public interface PlayerMoveListener {
         void onPlayerMove(int position, int row, int col);
         void updateScoreBoard(int userScore , int opponentScore);
+        void updateNameOnBoard(String userName , String opponentName);
     }
 
 }

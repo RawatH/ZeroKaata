@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -78,6 +79,11 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
     private TextView yourScore;
     private TextView opponentScore;
+    private TextView yourName;
+    private TextView opponentName;
+
+    private ImageView yourTrophy;
+    private ImageView oppTrophy;
 
     private ZKApplication application;
     private static final String TAG = ServerClientFragment.class.getSimpleName();
@@ -94,9 +100,9 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             switch (msg.what) {
                 case ZKConstants.MSG_READ:
                     Log.d(TAG, "Msg Read : " + data);
-                    if(data.indexOf("reset") == 2){
+                    if (data.indexOf("reset") == 2) {
                         gameManager.resetGame();
-                    }else {
+                    } else {
                         gameManager.updateOpponentMove(data);
                     }
                     break;
@@ -407,22 +413,22 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         scoreInflatedView = ((ViewStub) scoreViewStub).inflate();
         gameInflatedView = ((ViewStub) gameControlStub).inflate();
 
-        CardView closeGame = (CardView)gameInflatedView.findViewById(R.id.close_container);
+        CardView closeGame = (CardView) gameInflatedView.findViewById(R.id.close_container);
         closeGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.showToast(getActivity() , "Close");
+                Util.showToast(getActivity(), "Close");
             }
         });
-        CardView resetGame = (CardView)gameInflatedView.findViewById(R.id.reset_container);
+        CardView resetGame = (CardView) gameInflatedView.findViewById(R.id.reset_container);
         resetGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.showToast(getActivity() , "Reset");
+                Util.showToast(getActivity(), "Reset");
                 gameManager.resetGame();
 
                 try {
-                    JSONObject data = Util.getMessage(ZKConstants.MSG_RESET , null);
+                    JSONObject data = Util.getMessage(ZKConstants.MSG_RESET, null);
                     dataTransferThread.write(data.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -432,9 +438,17 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             }
         });
 
-        yourScore = (TextView)scoreInflatedView.findViewById(R.id.your_score);
-        opponentScore = (TextView)scoreInflatedView.findViewById(R.id.opponent_score);
+        yourScore = (TextView) scoreInflatedView.findViewById(R.id.your_score);
+        opponentScore = (TextView) scoreInflatedView.findViewById(R.id.opponent_score);
 
+        yourName = (TextView) scoreInflatedView.findViewById(R.id.your_name);
+        opponentName = (TextView) scoreInflatedView.findViewById(R.id.opponent_name);
+
+        yourName.setText("You");
+        opponentName.setText("Opponent");
+
+        yourTrophy = (ImageView) scoreInflatedView.findViewById(R.id.user_trophy);
+        oppTrophy = (ImageView) scoreInflatedView.findViewById(R.id.opponent_trophy);
     }
 
     private void initiateDataThread() {
@@ -454,11 +468,11 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     public void onPlayerMove(int position, int row, int col) {
         if (dataTransferThread != null) {
             try {
-                int [] arr = new int[3];
+                int[] arr = new int[3];
                 arr[0] = row;
                 arr[1] = col;
                 arr[2] = position;
-                JSONObject data =  Util.getMessage(ZKConstants.MSG_WRITE , arr);
+                JSONObject data = Util.getMessage(ZKConstants.MSG_WRITE, arr);
                 dataTransferThread.write(data.toString());
             } catch (JSONException jse) {
                 jse.printStackTrace();
@@ -473,6 +487,25 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         yourScore.setText(String.valueOf(userScore));
         opponentScore.setText(String.valueOf(oppScore));
 
+        if (userScore == oppScore) {
+            yourTrophy.setVisibility(View.INVISIBLE);
+            oppTrophy.setVisibility(View.INVISIBLE);
+            return;
+        }
+        if (userScore > oppScore) {
+            yourTrophy.setVisibility(View.VISIBLE);
+            oppTrophy.setVisibility(View.INVISIBLE);
+        } else {
+            yourTrophy.setVisibility(View.INVISIBLE);
+            oppTrophy.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    @Override
+    public void updateNameOnBoard(String userName, String oppName) {
+        yourName.setText(userName);
+        opponentName.setText(oppName);
     }
 
 
