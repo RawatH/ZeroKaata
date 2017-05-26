@@ -44,6 +44,7 @@ import zerokaata.hashcode.com.communication.DataTransferThread;
 import zerokaata.hashcode.com.customview.IndicatorView;
 import zerokaata.hashcode.com.listener.AlertSelectionListener;
 import zerokaata.hashcode.com.model.GameBoardVO;
+import zerokaata.hashcode.com.utils.GameManager;
 import zerokaata.hashcode.com.utils.IntentFactory;
 import zerokaata.hashcode.com.utils.Util;
 import zerokaata.hashcode.com.utils.ZKConstants;
@@ -71,11 +72,17 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     private View scoreViewStub;
     private View gameControlStub;
     private View boardInfatedView;
+
     private View scoreInflatedView;
-    private View gameControlView;
+    private View gameInflatedView;
+
+    private TextView yourScore;
+    private TextView opponentScore;
 
     private ZKApplication application;
     private static final String TAG = ServerClientFragment.class.getSimpleName();
+
+    private GameManager gameManager;
 
 
     class IncomingHandler extends Handler {
@@ -87,7 +94,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             switch (msg.what) {
                 case ZKConstants.MSG_READ:
                     Log.d(TAG, "Msg Read : " + data);
-                    application.getGameManager().updateOpponentMove(data);
+                    gameManager.updateOpponentMove(data);
                     break;
 
                 case ZKConstants.MSG_WRITE:
@@ -124,7 +131,10 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     }
 
     private void init(View view) {
+
         application = (ZKApplication) getActivity().getApplication();
+        gameManager = application.getGameManager();
+
         gameViewStub = view.findViewById(R.id.gameStub);
         scoreViewStub = view.findViewById(R.id.scoreStub);
         gameControlStub = view.findViewById(R.id.gameControlsStub);
@@ -181,7 +191,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        application.getGameManager().setPlayerType(ZKConstants.PLAYER.TYPE_O);
+                        gameManager.setPlayerType(ZKConstants.PLAYER.TYPE_O);
                         bannerTxt.setText("Waiting for X ...");
                         clientBtn.setVisibility(View.GONE);
                         startActivityForResult(IntentFactory.getInstance().getEnableDiscoverabilityIntent(), ZKConstants.REQ_CODE_DIS_MODE);
@@ -194,7 +204,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        application.getGameManager().setPlayerType(ZKConstants.PLAYER.TYPE_X);
+                        gameManager.setPlayerType(ZKConstants.PLAYER.TYPE_X);
                         bannerTxt.setText("Looking for 0 ...");
                         serverBtn.setVisibility(View.GONE);
                         accessLocationPermission();
@@ -307,7 +317,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                         serverBtn.reset();
                         clientBtn.setVisibility(View.VISIBLE);
                         serverBtn.setVisibility(View.VISIBLE);
-                        if (!application.getGameManager().isPlayersConnected()) {
+                        if (!gameManager.isPlayersConnected()) {
                             cancel.performClick();
                         }
                         break;
@@ -351,8 +361,8 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 bluetoothSocket = clientSocket;
                 bannerTxt.setText("Connected with client");
                 acceptThread.cancel();
-                application.getGameManager().setPlayersConnected(true);
-                application.getGameManager().setListener(ServerClientFragment.this);
+                gameManager.setPlayersConnected(true);
+                gameManager.setListener(ServerClientFragment.this);
                 boardInfatedView = ((ViewStub) gameViewStub).inflate();
                 initiateDataThread();
                 inflateScoreBardUI();
@@ -376,8 +386,8 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 bluetoothSocket = serverSocket;
                 bannerTxt.setText("Connected with server");
                 connectThread.cancel();
-                application.getGameManager().setPlayersConnected(true);
-                application.getGameManager().setListener(ServerClientFragment.this);
+                gameManager.setPlayersConnected(true);
+                gameManager.setListener(ServerClientFragment.this);
                 boardInfatedView = ((ViewStub) gameViewStub).inflate();
                 initiateDataThread();
                 inflateScoreBardUI();
@@ -389,27 +399,33 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     private void inflateScoreBardUI() {
         cancel.setVisibility(View.GONE);
         bannerTxt.setVisibility(View.GONE);
-        scoreViewStub = ((ViewStub) scoreViewStub).inflate();
-        gameControlStub = ((ViewStub) gameControlStub).inflate();
 
-        CardView closeGame = (CardView)gameControlStub.findViewById(R.id.close_container);
+        scoreInflatedView = ((ViewStub) scoreViewStub).inflate();
+        gameInflatedView = ((ViewStub) gameControlStub).inflate();
+
+        CardView closeGame = (CardView)gameInflatedView.findViewById(R.id.close_container);
         closeGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Util.showToast(getActivity() , "Close");
             }
         });
-        CardView resetGame = (CardView)gameControlStub.findViewById(R.id.reset_container);
+        CardView resetGame = (CardView)gameInflatedView.findViewById(R.id.reset_container);
         resetGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Util.showToast(getActivity() , "Reset");
+
             }
         });
+
+        yourScore = (TextView)scoreInflatedView.findViewById(R.id.your_score);
+        opponentScore = (TextView)scoreInflatedView.findViewById(R.id.opponent_score);
+
     }
 
     private void initiateDataThread() {
-        application.getGameManager().setGameBoardLayout(boardInfatedView);
+        gameManager.setGameBoardLayout(boardInfatedView);
         dataTransferThread = new DataTransferThread(bluetoothSocket, messenger);
         dataTransferThread.start();
     }
@@ -439,7 +455,10 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     }
 
     @Override
-    public void updateScoreBoard(int userScore, int opponentScore) {
+    public void updateScoreBoard(int userScore, int oppScore) {
+
+        yourScore.setText(String.valueOf(userScore));
+        opponentScore.setText(String.valueOf(oppScore));
 
     }
 

@@ -184,6 +184,15 @@ public class GameBoardVO implements CellView.GameListener {
             Log.d(TAG, "WIN  ~~~~~~>" + gameArr[arr[0]]);
             winFlag = true;
             drawWinLine(arr);
+            int winPlayerType = Util.getWinnerType(playerType ,winArr);
+
+            if(winPlayerType == playerType){
+                USER_SCORE++;
+            }else{
+                OPPONENT_SCORE++;
+            }
+
+            playerMoveListener.updateScoreBoard(USER_SCORE ,OPPONENT_SCORE);
             return true;
         }
 
