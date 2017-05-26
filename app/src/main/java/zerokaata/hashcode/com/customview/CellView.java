@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Handler;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -34,19 +35,16 @@ public class CellView extends View {
     private int rowId;
     private int colId;
     private int position;
-    private static float radii;
-    private boolean isUserMove;
-    private boolean isOpponentMove;
-    private boolean winFlag;
-    private String playerSymbol;
-    private GestureDetector mDetector = new GestureDetector(context, new CellView.GestureListener());
-    private static final String TAG = CellView.class.getSimpleName();
-    private GameListener gameListener;
     private int playerType;
     private int winArr[];
 
-    private float winCenterStartX = 0.0f;
-    private float winCenterStartY = 0.0f;
+    private boolean isCellClicked;
+    private boolean isOpponentMove;
+    private boolean winFlag;
+
+    private String playerSymbol;
+    private GestureDetector mDetector = new GestureDetector(context, new CellView.GestureListener());
+    private GameListener gameListener;
 
 
     public CellView(Context context, @Nullable AttributeSet attrs) {
@@ -212,7 +210,7 @@ public class CellView extends View {
 
         paint.setStrokeWidth(0);
 
-        if (isUserMove) {
+        if (isCellClicked) {
             setTextStyling(paint);
             canvas.drawText(playerSymbol, centerX, centerY + 40, paint);
         }
@@ -221,8 +219,6 @@ public class CellView extends View {
             setTextStyling(paint);
             canvas.drawText(Util.getOpponentSymbol(playerType), centerX, centerY + 40, paint);
         }
-
-
     }
 
     private void setTextStyling(Paint paint) {
@@ -249,14 +245,22 @@ public class CellView extends View {
         boolean result = mDetector.onTouchEvent(event);
         if (!result) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (!isUserMove && gameListener.isUserTurnNow()) {
-                    //TODO : Move by a player . Use GameListener
-                    isUserMove = true;
-                    gameListener.updateMove(position, rowId, colId, false);
-                    invalidate();
+                if (gameListener.getWinStatus()) {
+                    Util.showToast(context, "Start new game.");
                 } else {
-                    Util.showToast(context, "Already clicked or Not ur turn now.");
+                    if (gameListener.isCellAvailable(position)) {
+                        if (gameListener.isUserTurnNow()) {
+                            isCellClicked = true;
+                            gameListener.updateMove(position, rowId, colId, false);
+                            invalidate();
+                        } else {
+                            Util.showToast(context, "Wait for your turn.");
+                        }
+                    } else {
+                        Util.showToast(context, "Are you blind.");
+                    }
                 }
+
                 result = true;
             }
         }
@@ -266,11 +270,6 @@ public class CellView extends View {
     public void updateMove() {
         isOpponentMove = true;
 
-//        if (playerSymbol.equalsIgnoreCase(ZKConstants.MARK_X)) {
-//            playerSymbol = ZKConstants.MARK_O;
-//        } else {
-//            playerSymbol = ZKConstants.MARK_X;
-//        }
         invalidate();
 
     }
@@ -287,7 +286,7 @@ public class CellView extends View {
     }
 
     private int getWinLineType() {
-        int winLine = -1;
+        int winLine;
         switch (winArr[1] - winArr[0]) {
             case 1:
                 winLine = WINLINE.HORIZONTAL;
@@ -309,7 +308,8 @@ public class CellView extends View {
     }
 
     public void reset() {
-        isUserMove = false;
+        isCellClicked = false;
+        isOpponentMove = false;
         winFlag = false;
         winArr = null;
         invalidate();
@@ -325,7 +325,7 @@ public class CellView extends View {
 
         boolean getWinStatus();
 
-
+        boolean isCellAvailable(int position);
     }
 
     @Retention(RetentionPolicy.SOURCE)

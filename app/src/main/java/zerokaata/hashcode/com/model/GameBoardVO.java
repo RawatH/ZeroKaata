@@ -1,5 +1,6 @@
 package zerokaata.hashcode.com.model;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
@@ -132,10 +133,19 @@ public class GameBoardVO implements CellView.GameListener {
 
     public void resetBoard() {
         //reset my turn flag
-        setUserTurn(false);
+        setUserTurn(true);
 
         //reset move counter
         MOVE_COUNTER = 0;
+
+        //reset all cells
+        for (int i = 0; i < gameArr.length; i++) {
+            if(gameArr[i] == 0){
+                continue;
+            }
+            getCellViewFor(i).reset();
+
+        }
 
         //reset game arr
         for (int i = 0; i < gameArr.length; i++) {
@@ -145,16 +155,13 @@ public class GameBoardVO implements CellView.GameListener {
         //reset win flag
         winFlag = false;
 
-        //reset all cells
-        for (int i = 0; i < 9; i++) {
-            getCellViewFor(i).reset();
-        }
+
 
     }
 
 
     private boolean checkForWin() {
-        boolean winFlag = false;
+        boolean flag = false;
         Log.d(TAG, "Checking for WIN . ");
 
         StringTokenizer st;
@@ -173,7 +180,7 @@ public class GameBoardVO implements CellView.GameListener {
             arr[2] = 0;
         }
 
-        return winFlag;
+        return flag;
     }
 
     private boolean checkForWin(int arr[]) {
@@ -284,12 +291,15 @@ public class GameBoardVO implements CellView.GameListener {
         return winFlag;
     }
 
+    @Override
+    public boolean isCellAvailable(int position){
+        return gameArr[position]==0 ? true :false;
+    }
+
 
     public interface PlayerMoveListener {
-
         void onPlayerMove(int position, int row, int col);
         void updateScoreBoard(int userScore , int opponentScore);
-
     }
 
 }

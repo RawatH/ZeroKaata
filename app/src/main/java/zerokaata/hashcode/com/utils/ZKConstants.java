@@ -29,6 +29,7 @@ public class ZKConstants {
 
     public static final int MSG_READ = 111;
     public static final int MSG_WRITE = 112;
+    public static final int MSG_RESET = 888;
 
     public static final String MARK_X = "X";
     public static final String MARK_O = "O";

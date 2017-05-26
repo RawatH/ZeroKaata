@@ -74,7 +74,7 @@ public class GameManager {
     }
 
     public void resetGame() {
-
+        gameBoardVO.resetBoard();
     }
 
 }

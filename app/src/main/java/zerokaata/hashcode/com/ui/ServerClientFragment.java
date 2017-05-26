@@ -94,7 +94,11 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             switch (msg.what) {
                 case ZKConstants.MSG_READ:
                     Log.d(TAG, "Msg Read : " + data);
-                    gameManager.updateOpponentMove(data);
+                    if(data.indexOf("reset") == 2){
+                        gameManager.resetGame();
+                    }else {
+                        gameManager.updateOpponentMove(data);
+                    }
                     break;
 
                 case ZKConstants.MSG_WRITE:
@@ -415,6 +419,15 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             @Override
             public void onClick(View v) {
                 Util.showToast(getActivity() , "Reset");
+                gameManager.resetGame();
+
+                try {
+                    JSONObject data = Util.getMessage(ZKConstants.MSG_RESET , null);
+                    dataTransferThread.write(data.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
 
             }
         });
@@ -441,11 +454,11 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     public void onPlayerMove(int position, int row, int col) {
         if (dataTransferThread != null) {
             try {
-                JSONObject data = new JSONObject();
-                data.put("rowId", row);
-                data.put("colId", col);
-                data.put("position", position);
-
+                int [] arr = new int[3];
+                arr[0] = row;
+                arr[1] = col;
+                arr[2] = position;
+                JSONObject data =  Util.getMessage(ZKConstants.MSG_WRITE , arr);
                 dataTransferThread.write(data.toString());
             } catch (JSONException jse) {
                 jse.printStackTrace();
