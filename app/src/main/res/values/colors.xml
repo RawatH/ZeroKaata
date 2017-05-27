@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#1e90ff</color>
     <color name="colorAccent">#FF4081</color>
     <color name="zblue">#1e90ff</color>
+    <color name="turn">#424242</color>
 </resources>

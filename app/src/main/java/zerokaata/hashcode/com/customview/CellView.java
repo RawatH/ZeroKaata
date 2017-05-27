@@ -158,7 +158,7 @@ public class CellView extends View {
 
         }
 
-        paint.setColor(Color.parseColor("#e96725"));
+        paint.setColor(context.getResources().getColor(R.color.zblue));
 
         switch (position) {
             case 0:

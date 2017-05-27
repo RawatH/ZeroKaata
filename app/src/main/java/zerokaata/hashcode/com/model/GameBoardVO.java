@@ -37,7 +37,6 @@ public class GameBoardVO implements CellView.GameListener {
     private static int OPPONENT_SCORE;
 
 
-
     private static final String TAG = GameBoardVO.class.getSimpleName();
 
     private String[] winMatchList = {"0:1:2", "3:4:5", "6:7:8",
@@ -116,6 +115,7 @@ public class GameBoardVO implements CellView.GameListener {
             if (gameLayout != null) {
                 getCellViewFor(position).updateMove();
                 isUserTurn = true;
+                playerMoveListener.updateTurnOnUI(false);
             }
 
             MOVE_COUNTER++;
@@ -140,7 +140,7 @@ public class GameBoardVO implements CellView.GameListener {
 
         //reset all cells
         for (int i = 0; i < gameArr.length; i++) {
-            if(gameArr[i] == 0){
+            if (gameArr[i] == 0) {
                 continue;
             }
             getCellViewFor(i).reset();
@@ -154,7 +154,6 @@ public class GameBoardVO implements CellView.GameListener {
 
         //reset win flag
         winFlag = false;
-
 
 
     }
@@ -193,13 +192,14 @@ public class GameBoardVO implements CellView.GameListener {
             drawWinLine(arr);
 
 
-            if(gameArr[arr[0]] == playerType){
+            if (gameArr[arr[0]] == playerType) {
                 USER_SCORE++;
-            }else{
+            } else {
                 OPPONENT_SCORE++;
             }
 
-            playerMoveListener.updateScoreBoard(USER_SCORE ,OPPONENT_SCORE);
+            playerMoveListener.updateScoreBoard(USER_SCORE, OPPONENT_SCORE);
+
             return true;
         }
 
@@ -268,6 +268,7 @@ public class GameBoardVO implements CellView.GameListener {
     @Override
     public void updateMove(int position, int row, int col, boolean isOpponentsMove) {
         isUserTurn = false;
+        playerMoveListener.updateTurnOnUI(true);
         MOVE_COUNTER++;
         gameArr[position] = playerType;
         playerMoveListener.onPlayerMove(position, row, col);
@@ -287,20 +288,24 @@ public class GameBoardVO implements CellView.GameListener {
     }
 
     @Override
-    public  boolean getWinStatus(){
+    public boolean getWinStatus() {
         return winFlag;
     }
 
     @Override
-    public boolean isCellAvailable(int position){
-        return gameArr[position]==0 ? true :false;
+    public boolean isCellAvailable(int position) {
+        return gameArr[position] == 0 ? true : false;
     }
 
 
     public interface PlayerMoveListener {
         void onPlayerMove(int position, int row, int col);
-        void updateScoreBoard(int userScore , int opponentScore);
-        void updateNameOnBoard(String userName , String opponentName);
+
+        void updateScoreBoard(int userScore, int opponentScore);
+
+        void updateNameOnBoard(String userName, String opponentName);
+
+        void updateTurnOnUI(boolean isOpponentTurn);
     }
 
 }

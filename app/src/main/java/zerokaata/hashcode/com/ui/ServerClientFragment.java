@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -85,6 +86,11 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     private ImageView yourTrophy;
     private ImageView oppTrophy;
     private ImageView defTrophy;
+    private ImageView pointRight;
+    private ImageView pointLeft;
+
+    private LinearLayout oppScoreContainer;
+    private LinearLayout userScoreContainer;
 
     private ZKApplication application;
     private static final String TAG = ServerClientFragment.class.getSimpleName();
@@ -427,6 +433,9 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             public void onClick(View v) {
                 Util.showToast(getActivity(), "Reset");
                 gameManager.resetGame();
+                userScoreContainer.setBackgroundColor(Color.WHITE);
+                oppScoreContainer.setBackgroundColor(Color.WHITE);
+
 
                 try {
                     JSONObject data = Util.getMessage(ZKConstants.MSG_RESET, null);
@@ -455,7 +464,13 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
         yourTrophy = (ImageView) scoreInflatedView.findViewById(R.id.user_trophy);
         oppTrophy = (ImageView) scoreInflatedView.findViewById(R.id.opponent_trophy);
-        defTrophy = (ImageView)scoreInflatedView.findViewById(R.id.def_trophy);
+        defTrophy = (ImageView) scoreInflatedView.findViewById(R.id.def_trophy);
+
+        oppScoreContainer = (LinearLayout) scoreInflatedView.findViewById(R.id.oppScoreContainer);
+        userScoreContainer = (LinearLayout) scoreInflatedView.findViewById(R.id.userScoreContainer);
+
+//        pointLeft = (ImageView) scoreInflatedView.findViewById(R.id.pointLeft);
+//        pointRight = (ImageView) scoreInflatedView.findViewById(R.id.pointRight);
 
     }
 
@@ -516,6 +531,20 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     public void updateNameOnBoard(String userName, String oppName) {
         yourName.setText(userName);
         opponentName.setText(oppName);
+    }
+
+    @Override
+    public void updateTurnOnUI(boolean isOpponentTurn) {
+
+        if (isOpponentTurn) {
+            userScoreContainer.setBackgroundColor(Color.WHITE);
+            oppScoreContainer.setBackgroundColor(getResources().getColor(R.color.turn));
+
+        } else {
+            userScoreContainer.setBackgroundColor(getResources().getColor(R.color.turn));
+            oppScoreContainer.setBackgroundColor(Color.WHITE);
+           
+        }
     }
 
 
