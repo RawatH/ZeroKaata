@@ -2,6 +2,7 @@ package zerokaata.hashcode.com.utils;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -87,7 +88,8 @@ public class Util {
         return null;
     }
 
-    public static void setUserNameinPref(Context context) {
+    public static Typeface getScoreTypeface(Context context) {
+        return Typeface.createFromAsset(context.getAssets(), "score_font.ttf");
 
     }
 }

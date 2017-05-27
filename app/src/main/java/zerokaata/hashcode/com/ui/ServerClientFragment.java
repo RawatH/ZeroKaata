@@ -84,6 +84,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
     private ImageView yourTrophy;
     private ImageView oppTrophy;
+    private ImageView defTrophy;
 
     private ZKApplication application;
     private static final String TAG = ServerClientFragment.class.getSimpleName();
@@ -444,11 +445,18 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         yourName = (TextView) scoreInflatedView.findViewById(R.id.your_name);
         opponentName = (TextView) scoreInflatedView.findViewById(R.id.opponent_name);
 
-        yourName.setText("You");
-        opponentName.setText("Opponent");
+        yourName.setTypeface(Util.getScoreTypeface(getActivity()));
+        yourScore.setTypeface(Util.getScoreTypeface(getActivity()));
+        opponentName.setTypeface(Util.getScoreTypeface(getActivity()));
+        opponentScore.setTypeface(Util.getScoreTypeface(getActivity()));
+
+        yourName.setText(getString(R.string.default_user_name));
+        opponentName.setText(getString(R.string.default_opponent_name));
 
         yourTrophy = (ImageView) scoreInflatedView.findViewById(R.id.user_trophy);
         oppTrophy = (ImageView) scoreInflatedView.findViewById(R.id.opponent_trophy);
+        defTrophy = (ImageView)scoreInflatedView.findViewById(R.id.def_trophy);
+
     }
 
     private void initiateDataThread() {
@@ -490,8 +498,10 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         if (userScore == oppScore) {
             yourTrophy.setVisibility(View.INVISIBLE);
             oppTrophy.setVisibility(View.INVISIBLE);
+            defTrophy.setVisibility(View.VISIBLE);
             return;
         }
+        defTrophy.setVisibility(View.INVISIBLE);
         if (userScore > oppScore) {
             yourTrophy.setVisibility(View.VISIBLE);
             oppTrophy.setVisibility(View.INVISIBLE);
