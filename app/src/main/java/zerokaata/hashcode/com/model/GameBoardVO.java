@@ -1,5 +1,6 @@
 package zerokaata.hashcode.com.model;
 
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -12,6 +13,7 @@ import java.util.StringTokenizer;
 import zerokaata.hashcode.com.R;
 import zerokaata.hashcode.com.customview.CellView;
 import zerokaata.hashcode.com.utils.Util;
+import zerokaata.hashcode.com.utils.ZKConstants;
 
 /**
  * Created by hrawat on 19-05-2017.
@@ -39,9 +41,7 @@ public class GameBoardVO implements CellView.GameListener {
 
     private static final String TAG = GameBoardVO.class.getSimpleName();
 
-    private String[] winMatchList = {"0:1:2", "3:4:5", "6:7:8",
-            "0:3:6", "1:4:7", "2:5:8",
-            "0:4:8", "2:4:6"};
+    private String[] winMatchList = ZKConstants.WINMATCHLIST;
 
 
     private GameBoardVO() {
@@ -130,8 +130,22 @@ public class GameBoardVO implements CellView.GameListener {
 
     }
 
+    public boolean canOpponentWin(Context ctx){
 
-    public void resetBoard() {
+        return false;
+    }
+
+    public boolean resetBoard(Context ctx , boolean sourceUser) {
+
+
+
+        if (MOVE_COUNTER >= 5  && Util.canOppWin(gameArr, playerType) && winArr == null) {
+            if (sourceUser) {
+                Util.showToast(ctx, "Result possible. Play on.");
+            }
+            return false;
+        }
+
         //reset my turn flag
         setUserTurn(true);
 
@@ -155,7 +169,7 @@ public class GameBoardVO implements CellView.GameListener {
         //reset win flag
         winFlag = false;
 
-
+        return true;
     }
 
 

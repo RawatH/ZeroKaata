@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -93,6 +94,8 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     private LinearLayout userScoreContainer;
 
     private ZKApplication application;
+    private AlertDialog closeDialog;
+
     private static final String TAG = ServerClientFragment.class.getSimpleName();
 
     private GameManager gameManager;
@@ -108,7 +111,9 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 case ZKConstants.MSG_READ:
                     Log.d(TAG, "Msg Read : " + data);
                     if (data.indexOf("reset") == 2) {
-                        gameManager.resetGame();
+                        gameManager.resetGame(getActivity(), false);
+                        userScoreContainer.setBackgroundColor(Color.WHITE);
+                        oppScoreContainer.setBackgroundColor(Color.WHITE);
                     } else {
                         gameManager.updateOpponentMove(data);
                     }
@@ -424,24 +429,24 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         closeGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.showToast(getActivity(), "Close");
+                showClosingAlert();
             }
         });
         CardView resetGame = (CardView) gameInflatedView.findViewById(R.id.reset_container);
         resetGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Util.showToast(getActivity(), "Reset");
-                gameManager.resetGame();
-                userScoreContainer.setBackgroundColor(Color.WHITE);
-                oppScoreContainer.setBackgroundColor(Color.WHITE);
+                if (gameManager.resetGame(getActivity(), true)) {
+                    userScoreContainer.setBackgroundColor(Color.WHITE);
+                    oppScoreContainer.setBackgroundColor(Color.WHITE);
 
 
-                try {
-                    JSONObject data = Util.getMessage(ZKConstants.MSG_RESET, null);
-                    dataTransferThread.write(data.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    try {
+                        JSONObject data = Util.getMessage(ZKConstants.MSG_RESET, null);
+                        dataTransferThread.write(data.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
 
 
@@ -469,9 +474,44 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         oppScoreContainer = (LinearLayout) scoreInflatedView.findViewById(R.id.oppScoreContainer);
         userScoreContainer = (LinearLayout) scoreInflatedView.findViewById(R.id.userScoreContainer);
 
-//        pointLeft = (ImageView) scoreInflatedView.findViewById(R.id.pointLeft);
-//        pointRight = (ImageView) scoreInflatedView.findViewById(R.id.pointRight);
 
+    }
+
+    private void showClosingAlert() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.quit_alert_layout, null);
+        dialogBuilder.setView(dialogView);
+
+        TextView messageTxt = (TextView) dialogView.findViewById(R.id.alertTxt);
+        messageTxt.setTypeface(Util.getScoreTypeface(getActivity()));
+
+        Button quitBtn = (Button) dialogView.findViewById(R.id.quit);
+        quitBtn.setTypeface(Util.getScoreTypeface(getActivity()));
+
+        Button dntQuit = (Button) dialogView.findViewById(R.id.dntQuit);
+        dntQuit.setTypeface(Util.getScoreTypeface(getActivity()));
+
+        quitBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
+
+
+        dntQuit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (closeDialog != null) {
+                    closeDialog.dismiss();
+                }
+            }
+        });
+
+        closeDialog = dialogBuilder.create();
+        closeDialog.show();
     }
 
     private void initiateDataThread() {
@@ -539,11 +579,21 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         if (isOpponentTurn) {
             userScoreContainer.setBackgroundColor(Color.WHITE);
             oppScoreContainer.setBackgroundColor(getResources().getColor(R.color.turn));
+            yourScore.setTextColor(getResources().getColor(R.color.userCol));
+            yourName.setTextColor(getResources().getColor(R.color.userCol));
+            opponentScore.setTextColor(Color.WHITE);
+            opponentName.setTextColor(Color.WHITE);
+
 
         } else {
             userScoreContainer.setBackgroundColor(getResources().getColor(R.color.turn));
             oppScoreContainer.setBackgroundColor(Color.WHITE);
-           
+            yourScore.setTextColor(Color.WHITE);
+            yourName.setTextColor(Color.WHITE);
+            opponentScore.setTextColor(getResources().getColor(R.color.oppColor));
+            opponentName.setTextColor(getResources().getColor(R.color.oppColor));
+
+
         }
     }
 

@@ -8,6 +8,8 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.StringTokenizer;
+
 /**
  * Created by hrawat on 17-05-2017.
  */
@@ -91,5 +93,25 @@ public class Util {
     public static Typeface getScoreTypeface(Context context) {
         return Typeface.createFromAsset(context.getAssets(), "score_font.ttf");
 
+    }
+
+    public static boolean canOppWin(int gameArr[] , int oppPlayerType ){
+
+
+        for(String winLine : ZKConstants.WINMATCHLIST){
+            StringTokenizer st = new StringTokenizer(winLine , ":");
+            int posArr[] = new int[3];
+            int counter = 0;
+            while (st.hasMoreTokens()){
+              posArr[counter++] = Integer.valueOf(st.nextToken());
+            }
+            if((gameArr[posArr[0]]== oppPlayerType || gameArr[posArr[0]]== 0) &&
+                    (gameArr[posArr[1]]== oppPlayerType || gameArr[posArr[0]]== 0) &&
+                    (gameArr[posArr[2]]== oppPlayerType || gameArr[posArr[0]]== 0) ){
+                return true;
+            }
+        }
+
+     return false;
     }
 }

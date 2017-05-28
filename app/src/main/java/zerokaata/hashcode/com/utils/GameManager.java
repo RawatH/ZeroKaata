@@ -1,5 +1,6 @@
 package zerokaata.hashcode.com.utils;
 
+import android.content.Context;
 import android.view.View;
 
 import zerokaata.hashcode.com.customview.CellView;
@@ -73,8 +74,9 @@ public class GameManager {
 
     }
 
-    public void resetGame() {
-        gameBoardVO.resetBoard();
+    public boolean resetGame(Context ctx ,boolean sourceUser) {
+        return gameBoardVO.resetBoard(ctx, sourceUser);
     }
+
 
 }

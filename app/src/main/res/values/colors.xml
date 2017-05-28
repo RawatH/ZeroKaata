@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="zblue">#1e90ff</color>
     <color name="turn">#424242</color>
+    <color name="oppColor">#16A085</color>
+    <color name="userCol">#ab3456</color>
+
 </resources>
