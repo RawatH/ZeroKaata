@@ -11,20 +11,19 @@
         android:name=".application.ZKApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="DEMO"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.HomeActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+           >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <service android:name=".bluetoothconn.ConnService" />
 
     </application>
 

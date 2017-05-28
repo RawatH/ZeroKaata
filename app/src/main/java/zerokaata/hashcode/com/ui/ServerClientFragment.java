@@ -111,6 +111,9 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                     if (data.indexOf("reset") == 2) {
                         gameManager.resetGame(getActivity(), false);
                         resetScoreBoardUIState();
+
+                    } else if (data.indexOf("quit") == 2) {
+                        showClosingAlert(getString(R.string.quitMsg));
                     } else {
                         gameManager.updateOpponentMove(data);
                     }
@@ -426,7 +429,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         closeGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showClosingAlert();
+                showClosingAlert(getString(R.string.quitChoice));
             }
         });
         CardView resetGame = (CardView) gameInflatedView.findViewById(R.id.reset_container);
@@ -459,9 +462,9 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         opponentName.setTypeface(Util.getScoreTypeface(getActivity()));
         opponentScore.setTypeface(Util.getScoreTypeface(getActivity()));
 
-        yourName.setText(Util.getPlayerSymbol(gameManager.getPlayerType()) + " : " +getString(R.string.default_user_name));
+        yourName.setText(Util.getPlayerSymbol(gameManager.getPlayerType()) + " : " + getString(R.string.default_user_name));
 
-        opponentName.setText(Util.getOpponentSymbol(gameManager.getPlayerType()) +" : " +getString(R.string.default_opponent_name));
+        opponentName.setText(Util.getOpponentSymbol(gameManager.getPlayerType()) + " : " + getString(R.string.default_opponent_name));
 
         yourTrophy = (ImageView) scoreInflatedView.findViewById(R.id.user_trophy);
         oppTrophy = (ImageView) scoreInflatedView.findViewById(R.id.opponent_trophy);
@@ -473,7 +476,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
     }
 
-    private void showClosingAlert() {
+    private void showClosingAlert(final String msg) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -482,17 +485,29 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
         TextView messageTxt = (TextView) dialogView.findViewById(R.id.alertTxt);
         messageTxt.setTypeface(Util.getScoreTypeface(getActivity()));
+        messageTxt.setText(msg);
 
         Button quitBtn = (Button) dialogView.findViewById(R.id.quit);
         quitBtn.setTypeface(Util.getScoreTypeface(getActivity()));
 
+
         Button dntQuit = (Button) dialogView.findViewById(R.id.dntQuit);
         dntQuit.setTypeface(Util.getScoreTypeface(getActivity()));
+
 
         quitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
+
+                if(msg.equalsIgnoreCase(getString(R.string.quitChoice))) {
+                    try {
+                        JSONObject jsonData = Util.getMessage(ZKConstants.MSG_QUIT, null);
+                        dataTransferThread.write(jsonData.toString());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                ((HomeActivity)getActivity()).shutDownActivity();
             }
         });
 
@@ -505,6 +520,11 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                 }
             }
         });
+
+        if(msg.equalsIgnoreCase(getString(R.string.quitMsg))){
+         dntQuit.setVisibility(View.GONE);
+            quitBtn.setText(getString(R.string.close));
+        }
 
         closeDialog = dialogBuilder.create();
         closeDialog.show();
@@ -593,13 +613,17 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         }
     }
 
-    private void resetScoreBoardUIState(){
+    private void resetScoreBoardUIState() {
         userScoreContainer.setBackgroundColor(Color.WHITE);
         oppScoreContainer.setBackgroundColor(Color.WHITE);
         yourScore.setTextColor(getResources().getColor(R.color.userCol));
         yourName.setTextColor(getResources().getColor(R.color.userCol));
         opponentScore.setTextColor(getResources().getColor(R.color.oppColor));
         opponentName.setTextColor(getResources().getColor(R.color.oppColor));
+    }
+
+    public interface ActivityInterface{
+        void shutDownActivity();
     }
 
 

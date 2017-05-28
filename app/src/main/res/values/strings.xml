@@ -8,6 +8,9 @@
 
     <string name="default_user_name">You</string>
     <string name="default_opponent_name">Opponent</string>
+    <string name="quitChoice">Do you really want to quit ?</string>
+    <string name="quitMsg">Opponent left . Please quit.</string>
+    <string name="close">Close</string>
 
     <string name="uuid">1bdc9f15-fbc5-47dd-ba2b-9c65ec85a13c</string>
 </resources>

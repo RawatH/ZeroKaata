@@ -3,9 +3,6 @@ package zerokaata.hashcode.com.utils;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.telecom.ConnectionService;
-
-import zerokaata.hashcode.com.bluetoothconn.ConnService;
 
 /**
  * Created by hrawat on 18-05-2017.
@@ -38,8 +35,4 @@ public class IntentFactory {
         return discoverableIntent;
     }
 
-    public Intent getConnectionServiceIntent(Context ctx) {
-        Intent intent = new Intent(ctx, ConnService.class);
-        return intent;
-    }
 }

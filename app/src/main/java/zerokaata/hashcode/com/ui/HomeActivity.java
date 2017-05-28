@@ -19,7 +19,7 @@ import zerokaata.hashcode.com.utils.IntentFactory;
 import zerokaata.hashcode.com.utils.Util;
 import zerokaata.hashcode.com.utils.ZKConstants;
 
-public class HomeActivity extends AppCompatActivity  {
+public class HomeActivity extends AppCompatActivity implements ServerClientFragment.ActivityInterface {
 
     private RelativeLayout container;
 
@@ -71,4 +71,9 @@ public class HomeActivity extends AppCompatActivity  {
     }
 
 
+    @Override
+    public void shutDownActivity() {
+
+        finish();
+    }
 }

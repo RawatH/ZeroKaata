@@ -84,6 +84,10 @@ public class Util {
                 data.put("reset", ZKConstants.MSG_RESET);
                 return data;
 
+            case ZKConstants.MSG_QUIT:
+                data.put("quit", ZKConstants.MSG_QUIT);
+                return data;
+
         }
 
 
