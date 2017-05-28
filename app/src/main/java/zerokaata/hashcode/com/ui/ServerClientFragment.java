@@ -87,8 +87,6 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
     private ImageView yourTrophy;
     private ImageView oppTrophy;
     private ImageView defTrophy;
-    private ImageView pointRight;
-    private ImageView pointLeft;
 
     private LinearLayout oppScoreContainer;
     private LinearLayout userScoreContainer;
@@ -112,8 +110,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
                     Log.d(TAG, "Msg Read : " + data);
                     if (data.indexOf("reset") == 2) {
                         gameManager.resetGame(getActivity(), false);
-                        userScoreContainer.setBackgroundColor(Color.WHITE);
-                        oppScoreContainer.setBackgroundColor(Color.WHITE);
+                        resetScoreBoardUIState();
                     } else {
                         gameManager.updateOpponentMove(data);
                     }
@@ -437,9 +434,7 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
             @Override
             public void onClick(View v) {
                 if (gameManager.resetGame(getActivity(), true)) {
-                    userScoreContainer.setBackgroundColor(Color.WHITE);
-                    oppScoreContainer.setBackgroundColor(Color.WHITE);
-
+                    resetScoreBoardUIState();
 
                     try {
                         JSONObject data = Util.getMessage(ZKConstants.MSG_RESET, null);
@@ -464,8 +459,9 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
         opponentName.setTypeface(Util.getScoreTypeface(getActivity()));
         opponentScore.setTypeface(Util.getScoreTypeface(getActivity()));
 
-        yourName.setText(getString(R.string.default_user_name));
-        opponentName.setText(getString(R.string.default_opponent_name));
+        yourName.setText(Util.getPlayerSymbol(gameManager.getPlayerType()) + " : " +getString(R.string.default_user_name));
+
+        opponentName.setText(Util.getOpponentSymbol(gameManager.getPlayerType()) +" : " +getString(R.string.default_opponent_name));
 
         yourTrophy = (ImageView) scoreInflatedView.findViewById(R.id.user_trophy);
         oppTrophy = (ImageView) scoreInflatedView.findViewById(R.id.opponent_trophy);
@@ -595,6 +591,15 @@ public class ServerClientFragment extends Fragment implements IndicatorView.Play
 
 
         }
+    }
+
+    private void resetScoreBoardUIState(){
+        userScoreContainer.setBackgroundColor(Color.WHITE);
+        oppScoreContainer.setBackgroundColor(Color.WHITE);
+        yourScore.setTextColor(getResources().getColor(R.color.userCol));
+        yourName.setTextColor(getResources().getColor(R.color.userCol));
+        opponentScore.setTextColor(getResources().getColor(R.color.oppColor));
+        opponentName.setTextColor(getResources().getColor(R.color.oppColor));
     }
 
 
